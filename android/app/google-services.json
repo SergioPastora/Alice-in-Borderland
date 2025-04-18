@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "451223328164",
+    "project_id": "aliceinborderland-1fdc1",
+    "storage_bucket": "aliceinborderland-1fdc1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:451223328164:android:3f33d64a8d497fa15c1d31",
+        "android_client_info": {
+          "package_name": "com.example.alice_in_borderland"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4HA5TFve8HBcReCiRdGdEzdN21KvPnt8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:451223328164:android:75586287791eefb25c1d31",
+        "android_client_info": {
+          "package_name": "com.example.alice_in_borderland"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4HA5TFve8HBcReCiRdGdEzdN21KvPnt8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
