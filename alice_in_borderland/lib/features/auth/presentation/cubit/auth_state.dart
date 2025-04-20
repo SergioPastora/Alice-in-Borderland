@@ -1,3 +1,5 @@
+// lib/features/auth/presentation/cubit/auth_state.dart
+
 part of 'auth_cubit.dart';
 
 abstract class AuthState {}

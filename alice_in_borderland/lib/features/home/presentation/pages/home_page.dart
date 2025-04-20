@@ -1,6 +1,9 @@
-// lib/features/home/presentation/pages/home_page.dart
-
+import 'package:alice_in_borderland/features/gallery/presentation/gallery_page.dart';
+import 'package:alice_in_borderland/features/groups/presentation/cubit/group_cubit.dart';
+import 'package:alice_in_borderland/features/users/presentation/cubit/user_cubit.dart';
 import 'package:flutter/material.dart';
+import 'package:alice_in_borderland/features/visado/presentation/pages/visado_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -19,122 +22,160 @@ class HomePage extends StatelessWidget {
             ),
           ),
 
-          // 2) Contenido principal dentro de SafeArea
+          // 2) Contenido principal
           SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 24),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final w = constraints.maxWidth;
+                final h = constraints.maxHeight;
 
-                // 2.1) Botones superiores (Cartas / Visado)
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Botón "Cartas" con su texto
-                      GestureDetector(
-                        onTap: () {/* navegar a Cartas */},
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.asset(
-                              'assets/Logo_botones/Cartas_rbg.png', // <-- asset icono Cartas
-                              width: 96,
-                              height: 96,
+                // calculamos tamaños relativos
+                final topIconSize = w * 0.22; // iconos arriba: ~22% ancho
+                final topSpacing = w * 0.04; // espacio entre iconos
+                final leftPadding = w * 0.05; // padding izquierda
+                final textFontSize = topIconSize * 0.2; // fuente bajo iconos
+
+                final bottomIconSize = w * 0.16; // iconos abajo: ~16% ancho
+                final bottomPadding = h * 0.04; // padding inferior
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: h * 0.03),
+
+                    // 2.1) Botones superiores (Cartas / Visado)
+                    Padding(
+                      padding: EdgeInsets.only(left: leftPadding),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Cartas
+                          GestureDetector(
+                            onTap: () {
+                              final userState = context.read<UserCubit>().state;
+                              final groupState =
+                                  context.read<GroupCubit>().state;
+
+                              print('UserState: $userState');
+                              print('GroupState: $groupState');
+
+                              if (userState is UserLoadSuccess &&
+                                  groupState is GroupLoadSuccess) {
+                                final personalCards =
+                                    userState.user.cartasGanadas;
+                                final groupCards =
+                                    groupState.group.cartasColectivas;
+
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => GalleryPage(
+                                      personalCards: personalCards,
+                                      groupCards: groupCards,
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset(
+                                  'assets/Logo_botones/Cartas_rbg.png',
+                                  width: topIconSize,
+                                  height: topIconSize,
+                                ),
+                                SizedBox(height: h * 0.01),
+                                Text(
+                                  'Cartas',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: textFontSize,
+                                  ),
+                                ),
+                              ],
                             ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Cartas',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
+                          ),
+
+                          SizedBox(width: topSpacing),
+
+                          // Visado
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => const VisadoPage(),
+                                ),
+                              );
+                            },
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Image.asset(
+                                  'assets/Logo_botones/Visado_rbg.png',
+                                  width: topIconSize,
+                                  height: topIconSize,
+                                ),
+                                SizedBox(height: h * 0.01),
+                                Text(
+                                  'Visado',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: textFontSize,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                    ),
 
-                      const SizedBox(width: 12),
+                    const Spacer(),
 
-                      // Botón "Visado" con su texto
-                      GestureDetector(
-                        onTap: () {/* navegar a Visado */},
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Image.asset(
-                              'assets/Logo_botones/Visado_rbg.png', // <-- asset icono Visado
-                              width: 96,
-                              height: 96,
+                    // 2.2) Barra de navegación inferior
+                    Padding(
+                      padding: EdgeInsets.only(bottom: bottomPadding),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          GestureDetector(
+                            onTap: () {/* navegar a Galería personal */},
+                            child: Image.asset(
+                              'assets/Logo_botones/Galeria_rbg.png',
+                              width: bottomIconSize,
+                              height: bottomIconSize,
                             ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Visado',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
+                          ),
+                          GestureDetector(
+                            onTap: () {/* navegar a Perfil/Ajustes */},
+                            child: Image.asset(
+                              'assets/Logo_botones/Perfil_rbg.png',
+                              width: bottomIconSize,
+                              height: bottomIconSize,
                             ),
-                          ],
-                        ),
+                          ),
+                          GestureDetector(
+                            onTap: () {/* navegar a Ranking */},
+                            child: Image.asset(
+                              'assets/Logo_botones/Ranking_rbg.png',
+                              width: bottomIconSize,
+                              height: bottomIconSize,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {/* navegar a Eventos cercanos */},
+                            child: Image.asset(
+                              'assets/Logo_botones/Ubicaciones_rbg.png',
+                              width: bottomIconSize,
+                              height: bottomIconSize,
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-
-                const Spacer(), // empuja la barra inferior al fondo
-
-                // 2.2) Barra de navegación inferior
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 24.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          // TODO: navegar a Galería personal
-                        },
-                        child: Image.asset(
-                          'assets/Logo_botones/Galeria_rbg.png', // <-- Asset: icono Galería
-                          width: 72,
-                          height: 72,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          // TODO: navegar a Perfil/Ajustes
-                        },
-                        child: Image.asset(
-                          'assets/Logo_botones/Perfil_rbg.png', // <-- Asset: icono Perfil
-                          width: 72,
-                          height: 72,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          // TODO: navegar a Ranking
-                        },
-                        child: Image.asset(
-                          'assets/Logo_botones/Ranking_rbg.png', // <-- Asset: icono Ranking
-                          width: 72,
-                          height: 72,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          // TODO: navegar a Eventos cercanos
-                        },
-                        child: Image.asset(
-                          'assets/Logo_botones/Ubicaciones_rbg.png', // <-- Asset: icono Ubicaciones
-                          width: 72,
-                          height: 72,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ],
