@@ -94,8 +94,8 @@ class App extends StatelessWidget {
                         groupRepo, moveUserUC, syncGroupCardsUC, groupId),
                   ),
                   BlocProvider<AdminUserCubit>(
-                    create: (ctx) =>
-                        AdminUserCubit(ctx.read<UserRepositoryImpl>()),
+                    create: (ctx) => AdminUserCubit(
+                        ctx.read<UserRepositoryImpl>(), syncGroupCardsUC),
                   ),
                   BlocProvider<AdminGroupCubit>(
                     create: (ctx) =>
