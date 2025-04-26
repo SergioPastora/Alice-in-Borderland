@@ -1,4 +1,5 @@
 // lib/main.dart
+import 'package:alice_in_borderland/features/ranking/presentation/cubit/ranking_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -100,6 +101,9 @@ class App extends StatelessWidget {
                   BlocProvider<AdminGroupCubit>(
                     create: (ctx) =>
                         AdminGroupCubit(ctx.read<GroupRepository>()),
+                  ),
+                  BlocProvider<RankingCubit>(
+                    create: (ctx) => RankingCubit(userRepo),
                   ),
                 ],
                 child: const MaterialApp(

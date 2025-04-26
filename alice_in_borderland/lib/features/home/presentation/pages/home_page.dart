@@ -1,6 +1,9 @@
 import 'package:alice_in_borderland/features/admin/presentation/pages/admin_page.dart';
+import 'package:alice_in_borderland/features/events/presentation/pages/map_page.dart';
 import 'package:alice_in_borderland/features/gallery/presentation/gallery_page.dart';
 import 'package:alice_in_borderland/features/groups/presentation/cubit/group_cubit.dart';
+import 'package:alice_in_borderland/features/profile/presentation/pages/porfile_page.dart';
+import 'package:alice_in_borderland/features/ranking/presentation/pages/ranking_page.dart';
 import 'package:alice_in_borderland/features/users/presentation/cubit/user_cubit.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -12,14 +15,19 @@ class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   Future<void> _openDriveLink() async {
-    final doc = await FirebaseFirestore.instance
+    final snap = await FirebaseFirestore.instance
         .collection('config')
         .doc('linkDrive')
         .get();
-    final url = doc.data()?['url'] as String?;
-    Uri? uri = Uri.tryParse(url ?? '');
-    if (uri != null && await canLaunchUrl(uri!)) {
-      await launchUrl(uri, webOnlyWindowName: '_blank');
+    final urlString = snap.data()?['url'] as String?;
+    if (urlString == null) return;
+
+    final uri = Uri.parse(urlString);
+    if (!await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    )) {
+      debugPrint('No se pudo abrir $uri');
     }
   }
 
