@@ -1,3 +1,4 @@
+import 'package:alice_in_borderland/features/admin/presentation/pages/admin_page.dart';
 import 'package:alice_in_borderland/features/gallery/presentation/gallery_page.dart';
 import 'package:alice_in_borderland/features/groups/presentation/cubit/group_cubit.dart';
 import 'package:alice_in_borderland/features/users/presentation/cubit/user_cubit.dart';
@@ -29,7 +30,6 @@ class HomePage extends StatelessWidget {
                 final w = constraints.maxWidth;
                 final h = constraints.maxHeight;
 
-                // calculamos tamaños relativos
                 final topIconSize = w * 0.22; // iconos arriba: ~22% ancho
                 final topSpacing = w * 0.04; // espacio entre iconos
                 final leftPadding = w * 0.05; // padding izquierda
@@ -37,6 +37,10 @@ class HomePage extends StatelessWidget {
 
                 final bottomIconSize = w * 0.16; // iconos abajo: ~16% ancho
                 final bottomPadding = h * 0.04; // padding inferior
+
+                final userState = context.watch<UserCubit>().state;
+                final isAdmin = userState is UserLoadSuccess &&
+                    userState.user.rol == 'admin';
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,28 +53,18 @@ class HomePage extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Cartas
+                          // -- Cartas --
                           GestureDetector(
                             onTap: () {
-                              final userState = context.read<UserCubit>().state;
-                              final groupState =
-                                  context.read<GroupCubit>().state;
-
-                              print('UserState: $userState');
-                              print('GroupState: $groupState');
-
+                              final gs = context.read<GroupCubit>().state;
                               if (userState is UserLoadSuccess &&
-                                  groupState is GroupLoadSuccess) {
-                                final personalCards =
-                                    userState.user.cartasGanadas;
-                                final groupCards =
-                                    groupState.group.cartasColectivas;
-
+                                  gs is GroupLoadSuccess) {
                                 Navigator.of(context).push(
                                   MaterialPageRoute(
                                     builder: (_) => GalleryPage(
-                                      personalCards: personalCards,
-                                      groupCards: groupCards,
+                                      personalCards:
+                                          userState.user.cartasGanadas,
+                                      groupCards: gs.group.cartasColectivas,
                                     ),
                                   ),
                                 );
@@ -98,7 +92,7 @@ class HomePage extends StatelessWidget {
 
                           SizedBox(width: topSpacing),
 
-                          // Visado
+                          // -- Visado --
                           GestureDetector(
                             onTap: () {
                               Navigator.of(context).push(
@@ -126,6 +120,38 @@ class HomePage extends StatelessWidget {
                               ],
                             ),
                           ),
+
+                          // -- Admin (solo si es admin) --
+                          if (isAdmin) ...[
+                            SizedBox(width: topSpacing),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const AdminPage(),
+                                  ),
+                                );
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.admin_panel_settings,
+                                    size: topIconSize,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(height: h * 0.01),
+                                  Text(
+                                    'Admin',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: textFontSize,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),

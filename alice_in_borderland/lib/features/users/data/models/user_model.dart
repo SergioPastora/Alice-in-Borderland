@@ -58,4 +58,18 @@ class UserModel extends UserEntity {
 
   /// Para convertir a la entidad pura
   UserEntity toEntity() => this;
+
+  factory UserModel.fromEntity(UserEntity e) {
+    return UserModel(
+      uid: e.uid,
+      nombre: e.nombre,
+      email: e.email,
+      rol: e.rol,
+      vidas: e.vidas,
+      // Clonamos la lista para no compartir referencias mutables
+      cartasGanadas: List<String>.from(e.cartasGanadas),
+      grupoId: e.grupoId,
+      visadoHasta: e.visadoHasta,
+    );
+  }
 }

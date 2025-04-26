@@ -2,5 +2,7 @@ import 'package:alice_in_borderland/features/users/domain/entities/user_entity.d
 
 abstract class UserRepository {
   Stream<UserEntity> watchCurrentUser();
-  Future<void> addCardToUser(String code);
+  Stream<List<UserEntity>> watchAllUsers();
+  Future<void> addCardToUser(String userId, String code);
+  Future<void> updateUser(UserEntity user);
 }

@@ -6,38 +6,39 @@ import 'package:equatable/equatable.dart';
 
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/user_repository.dart';
+import '../../domain/usecases/add_card_to_user_usecase.dart';
 
 part 'user_state.dart';
 
-/// Ahora no empezamos nada en el constructor
 class UserCubit extends Cubit<UserState> {
-  final UserRepository _userRepository;
-  StreamSubscription<UserEntity>? _userSub;
+  final UserRepository _repo;
+  final AddCardToUserUseCase _addCard;
 
-  UserCubit(this._userRepository) : super(UserLoading());
+  StreamSubscription<UserEntity>? _sub;
 
-  /// Llama a este método para arrancar la suscripción
+  UserCubit(this._repo, this._addCard) : super(UserLoading()) {}
+
   Future<void> init() async {
-    // Emite Loading (si quieres)
     emit(UserLoading());
-
     try {
-      // Primero obtenemos un valor único (await first)
-      final user = await _userRepository.watchCurrentUser().first;
+      final user = await _repo.watchCurrentUser().first;
       emit(UserLoadSuccess(user));
-      print('UserCubit: User loaded first: ${user.uid}');
+      _sub = _repo.watchCurrentUser().skip(1).listen(
+            (u) => emit(UserLoadSuccess(u)),
+            onError: (e) => emit(UserLoadFailure(e.toString())),
+          );
+    } catch (e) {
+      emit(UserLoadFailure(e.toString()));
+    }
+  }
 
-      // Luego, si quieres seguir escuchando cambios:
-      _userSub = _userRepository
-          .watchCurrentUser()
-          .skip(1) // saltamos el que ya usamos
-          .listen(
-        (u) {
-          emit(UserLoadSuccess(u));
-          print('UserCubit: User updated: ${u.uid}');
-        },
-        onError: (e) => emit(UserLoadFailure(e.toString())),
-      );
+  Future<void> addCard(String code) async {
+    final current = state;
+    if (current is! UserLoadSuccess) return;
+    emit(UserLoading());
+    try {
+      await _addCard(current.user.uid, code);
+      // el stream de _repo.watchCurrentUser() emitirá la nueva lista
     } catch (e) {
       emit(UserLoadFailure(e.toString()));
     }
@@ -45,7 +46,7 @@ class UserCubit extends Cubit<UserState> {
 
   @override
   Future<void> close() {
-    _userSub?.cancel();
+    _sub?.cancel();
     return super.close();
   }
 }

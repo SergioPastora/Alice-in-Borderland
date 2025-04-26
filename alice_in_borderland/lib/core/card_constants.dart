@@ -10,9 +10,9 @@ const Map<String, String> cardCodeToName = {
   'C_8': '8 Corazon',
   'C_9': '9 Corazon',
   'C_10': '10 Corazon',
-/*   'C_J': 'J Corazon',
+  'C_J': 'J Corazon',
   'C_Q': 'Q Corazon',
-  'C_K': 'K Corazon', */
+  'C_K': 'K Corazon',
 
   // Diamantes
   'D_A': 'A Diamante',
@@ -25,9 +25,9 @@ const Map<String, String> cardCodeToName = {
   'D_8': '8 Diamante',
   'D_9': '9 Diamante',
   'D_10': '10 Diamante',
-/*   'D_J': 'J Diamante',
+  'D_J': 'J Diamante',
   'D_Q': 'Q Diamante',
-  'D_K': 'K Diamante', */
+  'D_K': 'K Diamante',
 
   // Tréboles
   'T_A': 'A Trebol',
@@ -40,9 +40,9 @@ const Map<String, String> cardCodeToName = {
   'T_8': '8 Trebol',
   'T_9': '9 Trebol',
   'T_10': '10 Trebol',
-/*   'T_J': 'J Trebol',
+  'T_J': 'J Trebol',
   'T_Q': 'Q Trebol',
-  'T_K': 'K Trebol', */
+  'T_K': 'K Trebol',
 
   // Picas
   'P_A': 'A Picas',
@@ -55,9 +55,9 @@ const Map<String, String> cardCodeToName = {
   'P_8': '8 Picas',
   'P_9': '9 Picas',
   'P_10': '10 Picas',
-/*   'P_J': 'J Picas',
+  'P_J': 'J Picas',
   'P_Q': 'Q Picas',
-  'P_K': 'K Picas', */
+  'P_K': 'K Picas',
 };
 
 /// Devuelve la ruta del asset de una carta, indicando si está desbloqueada

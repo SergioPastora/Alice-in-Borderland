@@ -2,6 +2,7 @@
 
 import 'package:alice_in_borderland/features/groups/data/models/group_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../../domain/entities/group_entity.dart';
 import '../../domain/repositories/group_repository.dart';
 
@@ -13,6 +14,7 @@ class GroupRepositoryImpl implements GroupRepository {
   Stream<GroupEntity> watchGroup(String groupId) {
     return _firestore.collection('grupos').doc(groupId).snapshots().map((snap) {
       if (!snap.exists) {
+        // grupo vacío si no existe
         return GroupEntity(
           id: groupId,
           nombre: 'Grupo $groupId',
@@ -27,8 +29,7 @@ class GroupRepositoryImpl implements GroupRepository {
   @override
   Future<void> ensureGroupExists(String groupId) async {
     final doc = _firestore.collection('grupos').doc(groupId);
-    final snap = await doc.get();
-    if (!snap.exists) {
+    if (!(await doc.get()).exists) {
       await doc.set({
         'nombre': 'Grupo $groupId',
         'miembros': <String>[],
@@ -39,65 +40,87 @@ class GroupRepositoryImpl implements GroupRepository {
 
   @override
   Future<void> moveUserToGroup(String userId, String targetGroupId) async {
-    // 1) Buscamos todos los grupos donde esté el usuario
-    final gruposConUser = await _firestore
+    // 1) Aseguramos que exista el grupo destino
+    await ensureGroupExists(targetGroupId);
+
+    // 2) Buscamos todos los grupos donde esté el usuario
+    final origenSnap = await _firestore
         .collection('grupos')
         .where('miembros', arrayContains: userId)
         .get();
 
+    // 3) Preparamos un batch para quitárselo a todos y añadirlo al destino
     final batch = _firestore.batch();
 
-    // 2) Quitarlo de cada uno
-    for (final doc in gruposConUser.docs) {
+    for (final doc in origenSnap.docs) {
       batch.update(doc.reference, {
         'miembros': FieldValue.arrayRemove([userId]),
       });
     }
 
-    // 3) Aseguramos que el grupo destino exista
     final targetRef = _firestore.collection('grupos').doc(targetGroupId);
-    batch.set(
-      targetRef,
-      {
-        'nombre': 'Grupo $targetGroupId',
-        'miembros': <String>[],
-        'cartasColectivas': <String>[],
-      },
-      SetOptions(merge: true),
-    );
-
-    // 4) Lo añadimos al grupo destino
     batch.update(targetRef, {
       'miembros': FieldValue.arrayUnion([userId]),
     });
 
-    // 5) Ejecutamos todo en transacción
+    // 4) Ejecutamos el batch
     await batch.commit();
+
+    // 5) Sincronizamos cartas en todos los grupos afectados
+    for (final doc in origenSnap.docs) {
+      await syncGroupCards(doc.id);
+    }
+    await syncGroupCards(targetGroupId);
   }
 
   @override
   Future<void> syncGroupCards(String groupId) async {
     final groupRef = _firestore.collection('grupos').doc(groupId);
-    final groupSnap = await groupRef.get();
-    final data = groupSnap.data();
-    final miembros =
-        (data?['miembros'] as List<dynamic>?)?.cast<String>() ?? [];
+    final snap = await groupRef.get();
+    final data = snap.data() ?? {};
 
-    // 2) Recogemos todas las cartas de cada miembro
-    final cartasList = await Future.wait(miembros.map((uid) async {
-      final userDoc = await _firestore.collection('usuarios').doc(uid).get();
-      final userData = userDoc.data();
-      return (userData?['cartasGanadas'] as List<dynamic>?)?.cast<String>() ??
+    // 1) Lista de miembros actual
+    final miembros =
+        (data['miembros'] as List<dynamic>?)?.cast<String>() ?? <String>[];
+
+    // 2) Recogemos las cartas de cada miembro
+    final listas = await Future.wait(miembros.map((uid) async {
+      final uSnap = await _firestore.collection('usuarios').doc(uid).get();
+      final uData = uSnap.data() ?? {};
+      return (uData['cartasGanadas'] as List<dynamic>?)?.cast<String>() ??
           <String>[];
     }));
 
-    // 3) Unimos y sin duplicados
+    // 3) Unión sin duplicados
     final union = <String>{};
-    for (final cartas in cartasList) union.addAll(cartas);
+    for (final lst in listas) union.addAll(lst);
 
-    // 4) Persistimos en el documento del grupo
+    // 4) Persistimos sólo el campo cartasColectivas
     await groupRef.set({
       'cartasColectivas': union.toList(),
     }, SetOptions(merge: true));
+  }
+
+  @override
+  Stream<List<GroupEntity>> watchAllGroups() {
+    return _firestore.collection('grupos').snapshots().map((snap) => snap.docs
+        .map((doc) => GroupModel.fromSnapshot(doc).toEntity())
+        .toList());
+  }
+
+  @override
+  Future<void> updateGroup(GroupEntity group) {
+    final model = group is GroupModel
+        ? group
+        : GroupModel(
+            id: group.id,
+            nombre: group.nombre,
+            cartasColectivas: group.cartasColectivas,
+            miembros: group.miembros,
+          );
+    return _firestore
+        .collection('grupos')
+        .doc(model.id)
+        .set(model.toJson(), SetOptions(merge: true));
   }
 }

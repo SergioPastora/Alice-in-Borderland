@@ -49,22 +49,31 @@ class _GalleryGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final padding = MediaQuery.of(context).size.width * 0.01;
+    final double spacing = MediaQuery.of(context).size.width / 100;
+    final double childAspectRatio = MediaQuery.of(context).size.width / 700;
 
-    return Padding(
-      padding: EdgeInsets.all(padding),
-      child: GridView.count(
-        crossAxisCount: 2,
-        crossAxisSpacing: padding,
-        mainAxisSpacing: padding,
-        children: [
-          for (final code in cardCodeToName.keys)
-            _GalleryItem(
-              code: code,
-              isOwned: cardCodes.contains(code),
-            ),
-        ],
+    return GridView.builder(
+      padding: EdgeInsets.all(spacing),
+      itemCount: cardCodeToName.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: spacing,
+        mainAxisSpacing: spacing,
+        childAspectRatio: childAspectRatio,
       ),
+      itemBuilder: (context, index) {
+        final code = cardCodeToName.keys.elementAt(index);
+        final isOwned = cardCodes.contains(code);
+        final asset = cardAssetPath(code, unlocked: isOwned);
+
+        return Opacity(
+          opacity: isOwned ? 1 : 0.3,
+          child: Image.asset(
+            asset,
+            fit: BoxFit.cover,
+          ),
+        );
+      },
     );
   }
 }
