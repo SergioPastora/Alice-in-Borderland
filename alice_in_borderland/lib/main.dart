@@ -1,4 +1,9 @@
 // lib/main.dart
+import 'package:alice_in_borderland/features/events/domain/repositories/event_repository.dart';
+import 'package:alice_in_borderland/features/events/domain/repositories/event_repository_impl.dart';
+import 'package:alice_in_borderland/features/events/presentation/cubits/admin_event_cubit.dart';
+import 'package:alice_in_borderland/features/events/presentation/cubits/event_cubit.dart';
+import 'package:alice_in_borderland/features/events/presentation/cubits/map_event_cubit.dart';
 import 'package:alice_in_borderland/features/ranking/presentation/cubit/ranking_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -53,6 +58,9 @@ class App extends StatelessWidget {
         RepositoryProvider<GroupRepository>(
           create: (_) => GroupRepositoryImpl(FirebaseFirestore.instance),
         ),
+        RepositoryProvider<EventRepository>(
+          create: (_) => EventRepositoryImpl(FirebaseFirestore.instance),
+        ),
       ],
       child: BlocProvider<AuthCubit>(
         create: (ctx) => AuthCubit(
@@ -104,6 +112,16 @@ class App extends StatelessWidget {
                   ),
                   BlocProvider<RankingCubit>(
                     create: (ctx) => RankingCubit(userRepo),
+                  ),
+                  BlocProvider<AdminEventCubit>(
+                    create: (ctx) =>
+                        AdminEventCubit(ctx.read<EventRepository>()),
+                  ),
+                  BlocProvider<EventCubit>(
+                    create: (ctx) => EventCubit(ctx.read<EventRepository>()),
+                  ),
+                  BlocProvider<MapEventCubit>(
+                    create: (ctx) => MapEventCubit(ctx.read<EventRepository>()),
                   ),
                 ],
                 child: const MaterialApp(

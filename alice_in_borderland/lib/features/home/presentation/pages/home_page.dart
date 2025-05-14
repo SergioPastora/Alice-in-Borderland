@@ -1,5 +1,5 @@
 import 'package:alice_in_borderland/features/admin/presentation/pages/admin_page.dart';
-import 'package:alice_in_borderland/features/events/presentation/pages/map_page.dart';
+import 'package:alice_in_borderland/features/events/presentation/pages/event_map_page.dart';
 import 'package:alice_in_borderland/features/gallery/presentation/gallery_page.dart';
 import 'package:alice_in_borderland/features/groups/presentation/cubit/group_cubit.dart';
 import 'package:alice_in_borderland/features/profile/presentation/pages/porfile_page.dart';
@@ -225,7 +225,7 @@ class HomePage extends StatelessWidget {
                           GestureDetector(
                             onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (_) => const MapPage(),
+                                builder: (_) => const EventMapPage(),
                               ),
                             ),
                             child: Image.asset(

@@ -24,7 +24,7 @@ class GroupCubit extends Cubit<GroupState> {
     this._moveUser,
     this._syncCards,
     this._groupId,
-  ) : super(GroupLoading()) {}
+  ) : super(GroupLoading());
 
   Future<void> init() async {
     emit(GroupLoading());

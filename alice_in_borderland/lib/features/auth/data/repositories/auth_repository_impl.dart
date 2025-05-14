@@ -39,7 +39,8 @@ class AuthRepositoryImpl implements AuthRepository {
     final result = await _firebaseAuth.signInWithCredential(credential);
     final fb.User fbUser = result.user!;
 
-    // Creamos el modelo con grupo "0" por defecto
+    final isNewUser = result.additionalUserInfo?.isNewUser ?? false;
+
     final userModel = UserModel(
       uid: fbUser.uid,
       nombre: fbUser.displayName ?? '',
@@ -51,34 +52,34 @@ class AuthRepositoryImpl implements AuthRepository {
       visadoHasta: DateTime.now().add(const Duration(days: 7)),
     );
 
-    // Guardamos en Firestore (merge: true para no sobrescribir otros campos)
-    await _firestore
-        .collection('usuarios')
-        .doc(userModel.uid)
-        .set(userModel.toJson(), SetOptions(merge: true));
+    if (isNewUser) {
+      await _firestore
+          .collection('usuarios')
+          .doc(userModel.uid)
+          .set(userModel.toJson());
+    }
 
     return userModel;
   }
 
   @override
   Future<void> ensureUserInFirestore(UserEntity user) async {
-    final docRef = _firestore.collection('usuarios').doc(user.uid);
-    final snap = await docRef.get();
+    final ref = _firestore.collection('usuarios').doc(user.uid);
+    final snap = await ref.get();
+
+    final model = user is UserModel ? user : UserModel.fromEntity(user);
+
     if (!snap.exists) {
-      // Convertimos la entidad a modelo si hace falta
-      final model = user is UserModel
-          ? user
-          : UserModel(
-              uid: user.uid,
-              nombre: user.nombre,
-              email: user.email,
-              rol: user.rol,
-              vidas: user.vidas,
-              cartasGanadas: user.cartasGanadas,
-              grupoId: user.grupoId ?? '0', // default a '0'
-              visadoHasta: user.visadoHasta,
-            );
-      await docRef.set(model.toJson());
+      await ref.set(model.toJson());
+    } else {
+      await ref.set({
+        'nombre': model.nombre,
+        'email': model.email,
+        'rol': model.rol,
+        'vidas': model.vidas,
+        'visadoHasta': model.toJson()['visadoHasta'],
+        'grupoId': model.grupoId,
+      }, SetOptions(merge: true));
     }
   }
 

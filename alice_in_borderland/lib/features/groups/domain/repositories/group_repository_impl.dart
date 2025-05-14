@@ -67,9 +67,6 @@ class GroupRepositoryImpl implements GroupRepository {
     await batch.commit();
 
     // 5) Sincronizamos cartas en todos los grupos afectados
-    for (final doc in origenSnap.docs) {
-      await syncGroupCards(doc.id);
-    }
     await syncGroupCards(targetGroupId);
   }
 
@@ -93,7 +90,9 @@ class GroupRepositoryImpl implements GroupRepository {
 
     // 3) Unión sin duplicados
     final union = <String>{};
-    for (final lst in listas) union.addAll(lst);
+    for (final lst in listas) {
+      union.addAll(lst);
+    }
 
     // 4) Persistimos sólo el campo cartasColectivas
     await groupRef.set({

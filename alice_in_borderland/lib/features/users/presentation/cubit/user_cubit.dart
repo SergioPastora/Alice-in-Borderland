@@ -16,7 +16,7 @@ class UserCubit extends Cubit<UserState> {
 
   StreamSubscription<UserEntity>? _sub;
 
-  UserCubit(this._repo, this._addCard) : super(UserLoading()) {}
+  UserCubit(this._repo, this._addCard) : super(UserLoading());
 
   Future<void> init() async {
     emit(UserLoading());

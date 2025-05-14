@@ -1,0 +1,2 @@
+C:/Users/USUARIO/Documents/Proyectos/Alice-in-Borderland/alice_in_borderland/android/app/.cxx/Debug/m4e6n3w4/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/USUARIO/Documents/Proyectos/Alice-in-Borderland/alice_in_borderland/android/app/.cxx/Debug/m4e6n3w4/armeabi-v7a/CMakeFiles/rebuild_cache.dir

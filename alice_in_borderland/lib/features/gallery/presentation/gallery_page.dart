@@ -77,22 +77,3 @@ class _GalleryGrid extends StatelessWidget {
     );
   }
 }
-
-class _GalleryItem extends StatelessWidget {
-  final String code;
-  final bool isOwned;
-  const _GalleryItem({
-    required this.code,
-    required this.isOwned,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final asset = cardAssetPath(code, unlocked: isOwned);
-
-    return Opacity(
-      opacity: isOwned ? 1.0 : 0.3,
-      child: Image.asset(asset),
-    );
-  }
-}

@@ -6,16 +6,11 @@ import '../../domain/entities/group_entity.dart';
 /// Modelo que sabe serializar ⇄ Firestore
 class GroupModel extends GroupEntity {
   const GroupModel({
-    required String id,
-    required String nombre,
-    required List<String> cartasColectivas,
-    required List<String> miembros,
-  }) : super(
-          id: id,
-          nombre: nombre,
-          cartasColectivas: cartasColectivas,
-          miembros: miembros,
-        );
+    required super.id,
+    required super.nombre,
+    required super.cartasColectivas,
+    required super.miembros,
+  });
 
   /// Crea un GroupModel a partir de un DocumentSnapshot de Firestore
   factory GroupModel.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snap) {

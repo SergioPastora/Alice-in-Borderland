@@ -3,24 +3,15 @@ import '../../domain/entities/user_entity.dart';
 
 class UserModel extends UserEntity {
   const UserModel({
-    required String uid,
-    required String nombre,
-    required String email,
-    required String rol,
-    required int vidas,
-    required List<String> cartasGanadas,
-    required DateTime visadoHasta,
-    String? grupoId,
-  }) : super(
-          uid: uid,
-          nombre: nombre,
-          email: email,
-          rol: rol,
-          vidas: vidas,
-          cartasGanadas: cartasGanadas,
-          grupoId: grupoId,
-          visadoHasta: visadoHasta,
-        );
+    required super.uid,
+    required super.nombre,
+    required super.email,
+    required super.rol,
+    required super.vidas,
+    required super.cartasGanadas,
+    required super.visadoHasta,
+    super.grupoId,
+  });
 
   /// Crea un UserModel a partir de un Map de Firestore
   factory UserModel.fromJson(Map<String, dynamic> json) {

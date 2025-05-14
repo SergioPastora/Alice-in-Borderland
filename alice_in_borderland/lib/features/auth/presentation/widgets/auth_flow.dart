@@ -20,7 +20,8 @@ class AuthFlow extends StatelessWidget {
       builder: (ctx, state) {
         if (state is AuthInitial || state is AuthLoading) {
           return const Scaffold(
-              body: Center(child: CircularProgressIndicator()));
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
         if (state is Unauthenticated) {
           return LoginPage();
@@ -33,7 +34,7 @@ class AuthFlow extends StatelessWidget {
 }
 
 class _AuthenticatedSplash extends StatefulWidget {
-  const _AuthenticatedSplash({super.key});
+  const _AuthenticatedSplash();
   @override
   State<_AuthenticatedSplash> createState() => _AuthenticatedSplashState();
 }
