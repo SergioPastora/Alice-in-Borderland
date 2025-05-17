@@ -5,19 +5,16 @@ class SplashPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text(
-              '顔認証をお待ちください', // “Reconocimiento facial espera un momento”
-              style: TextStyle(fontSize: 16),
+    return Scaffold(
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'assets/splash_bg.jpg',
+              fit: BoxFit.cover,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

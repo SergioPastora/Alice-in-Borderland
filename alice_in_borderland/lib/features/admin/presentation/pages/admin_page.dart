@@ -2,6 +2,7 @@
 
 import 'package:alice_in_borderland/features/admin/presentation/cubit/admin_group_cubit.dart';
 import 'package:alice_in_borderland/features/admin/presentation/cubit/admin_user_cubit.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -14,18 +15,20 @@ class AdminPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Bienvenido Game Master'),
+          title: const Text('Bienvenido Game Master'),
           bottom: const TabBar(tabs: [
             Tab(text: 'Usuarios'),
             Tab(text: 'Grupos'),
+            Tab(text: 'Retos'),
           ]),
         ),
         body: const TabBarView(children: [
           _UsersTab(),
           _GroupsTab(),
+          _ChallengesTab(),
         ]),
       ),
     );
@@ -447,4 +450,91 @@ class _GroupsTab extends StatelessWidget {
             (g) => DropdownMenuItem<String>(value: g.id, child: Text(g.nombre)))
         .toList();
   }
+}
+
+/// === Pestaña de Retos ===
+class _ChallengesTab extends StatelessWidget {
+  const _ChallengesTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream:
+          FirebaseFirestore.instance.collection('cardChallenges').snapshots(),
+      builder: (ctx, snap) {
+        if (snap.connectionState != ConnectionState.done &&
+            snap.connectionState != ConnectionState.active) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (snap.hasError || !snap.hasData) {
+          return const Center(child: Text('Error al cargar retos'));
+        }
+        final docs = snap.data!.docs;
+        return ListView.builder(
+          itemCount: docs.length,
+          itemBuilder: (ctx, i) {
+            final doc = docs[i];
+            final code = doc.id;
+            final data = doc.data() as Map<String, dynamic>;
+            final title = data['title'] as String? ?? '';
+            final desc = data['description'] as String? ?? '';
+            return ListTile(
+              title: Text('$code – $title'),
+              subtitle: Text(desc),
+              trailing: IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () =>
+                    _editChallengeDialog(context, code, title, desc),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
+void _editChallengeDialog(
+    BuildContext context, String code, String title, String desc) {
+  final titleCtl = TextEditingController(text: title);
+  final descCtl = TextEditingController(text: desc);
+  showDialog(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text('Editar Reto $code'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: titleCtl,
+            decoration: const InputDecoration(labelText: 'Título'),
+          ),
+          const SizedBox(height: 8),
+          TextField(
+            controller: descCtl,
+            decoration: const InputDecoration(labelText: 'Descripción'),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: const Text('Cancelar'),
+        ),
+        ElevatedButton(
+          onPressed: () async {
+            await FirebaseFirestore.instance
+                .collection('cardChallenges')
+                .doc(code)
+                .set({
+              'title': titleCtl.text,
+              'description': descCtl.text,
+            }, SetOptions(merge: true));
+            Navigator.of(ctx).pop();
+          },
+          child: const Text('Guardar'),
+        ),
+      ],
+    ),
+  );
 }

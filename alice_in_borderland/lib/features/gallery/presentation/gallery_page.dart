@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/card_constants.dart';
+import 'widgets/card_popup.dart';
 
 class GalleryPage extends StatelessWidget {
   /// Lista de códigos de carta que el usuario posee
@@ -23,6 +24,7 @@ class GalleryPage extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Colors.black,
           elevation: 0,
+          titleTextStyle: const TextStyle(color: Colors.white, fontSize: 24),
           title: const Text('Galería de Cartas'),
           bottom: const TabBar(
             indicatorColor: Colors.white,
@@ -66,11 +68,14 @@ class _GalleryGrid extends StatelessWidget {
         final isOwned = cardCodes.contains(code);
         final asset = cardAssetPath(code, unlocked: isOwned);
 
-        return Opacity(
-          opacity: isOwned ? 1 : 0.3,
-          child: Image.asset(
-            asset,
-            fit: BoxFit.cover,
+        return GestureDetector(
+          onTap: () => CardPopup.show(context, code, unlocked: isOwned),
+          child: Opacity(
+            opacity: isOwned ? 1 : 0.3,
+            child: Image.asset(
+              asset,
+              fit: BoxFit.cover,
+            ),
           ),
         );
       },
